@@ -71,6 +71,10 @@ export function Main() {
             <Item
               key={item.id}
               item={item}
+              onPressItem={async (id) => {
+                await deleteItemAsync(db, id);
+                await refetchItems();
+              }}
             />
           ))}
         </View>
@@ -78,14 +82,27 @@ export function Main() {
   );
 }
 
-function Item({item}: {item: ItemEntity}) {
+function Item({item, onPressItem}:
+  {
+    item: ItemEntity;
+    onPressItem: (id: number) => void | Promise<void>;
+  }) {
   const { id, description } = item;
   console.log("Rendering the Item: ", item);
   return (
+    <TouchableOpacity
+      onPress={() => onPressItem && onPressItem(id)}
+    >
+
       <Text style={styles.itemText}>
         {description}
       </Text>
+    </TouchableOpacity>
   );
+}
+
+async function deleteItemAsync(db: SQLiteDatabase, id: number): Promise<void> {
+  await db.runAsync('DELETE FROM items where id = ?', id);
 }
 
 async function addItemAsync(db: SQLiteDatabase, text: string): Promise<void> {
