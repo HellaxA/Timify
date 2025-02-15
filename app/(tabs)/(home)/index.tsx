@@ -65,8 +65,9 @@ export function Main() {
           value={text}
         />
       </View>
-      <View style={styles.sectionContainer}>
-          <Text style={styles.sectionHeading}>Todo</Text>
+      <ScrollView style={styles.listArea}>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionHeading}>Logged Activities</Text>
           {items.map((item) => (
             <Item
               key={item.id}
@@ -78,6 +79,7 @@ export function Main() {
             />
           ))}
         </View>
+      </ScrollView>
     </View>
   );
 }
@@ -88,10 +90,10 @@ function Item({item, onPressItem}:
     onPressItem: (id: number) => void | Promise<void>;
   }) {
   const { id, description } = item;
-  console.log("Rendering the Item: ", item);
   return (
     <TouchableOpacity
-      onPress={() => onPressItem && onPressItem(id)}
+      onPress={() => onPressItem?.(id) }
+      style={(styles.item)}
     >
 
       <Text style={styles.itemText}>
@@ -159,7 +161,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   input: {
-    borderColor: '#4630eb',
+    // borderColor: '#4630eb',
     borderRadius: 4,
     borderWidth: 1,
     flex: 1,
