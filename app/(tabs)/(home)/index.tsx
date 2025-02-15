@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, useFocusEffect } from 'expo-router';
 import { useState, useEffect, useCallback } from 'react';
 import {
   SQLiteProvider,
@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { ItemEntity } from '@/src/Item';
 import { CategoryEntity } from '@/src/Category';
-import { migrateDbIfNeeded } from '@/db/db_setup';
+import { migrateDbIfNeeded, addItemAsync, deleteItemAsync } from '@/db/db_setup';
 
 export default function HomeScreen() {
   return (
@@ -28,13 +28,14 @@ export default function HomeScreen() {
 }
 export function Main() {
   const db = useSQLiteContext();
-  const [text, setText] = useState('');
   const [items, setItems] = useState<ItemEntity[]>([]);
   const [categories, setCategories] = useState<CategoryEntity[]>([]);
 
   const refetchItems = useCallback(() => {
     async function refetch() {
+      console.log('Executing refetch()')
       await db.withExclusiveTransactionAsync(async () => {
+        console.log('In db.exec')
         setItems(
           await db.getAllAsync<ItemEntity>(
             'SELECT * FROM items'
@@ -46,14 +47,23 @@ export function Main() {
   }, [db]);
 
   useEffect(() => {
+    console.log('In useEffect');
     refetchItems();
   }, []);
+  // TODO deleteItem doesn't work after addItem on the separate page
+  // TODO list isn't updated after adding an item 
+
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     console.log('Screen focues, executing refetech...');
+  //     refetchItems();
+  //   }, [refetchItems])
+  // );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>SQLite Example</Text>
-
-      <View style={styles.flexRow}>
+      {/* <View style={styles.flexRow}>
         <TextInput
           onChangeText={(text) => setText(text)}
           onSubmitEditing={async () => {
@@ -65,7 +75,7 @@ export function Main() {
           style={styles.input}
           value={text}
         />
-      </View>
+      </View> */}
       <ScrollView style={styles.listArea}>
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionHeading}>Logged Activities</Text>
@@ -81,6 +91,9 @@ export function Main() {
           ))}
         </View>
       </ScrollView>
+      <TouchableOpacity style={styles.addItem}>
+        <Link href="/addItem" style={styles.heading}>Add Item</Link>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -104,33 +117,19 @@ function Item({item, onPressItem}:
   );
 }
 
-async function deleteItemAsync(db: SQLiteDatabase, id: number): Promise<void> {
-  await db.runAsync('DELETE FROM items where id = ?', id);
-}
-
-async function addItemAsync(db: SQLiteDatabase, text: string): Promise<void> {
-  if (text !== '') {
-    try {
-      await db.runAsync(
-        'INSERT INTO items (description) VALUES (?);',
-        text
-      );
-    } catch (error) {
-      console.error('Error inserting into database:', error);
-    }
-  }
- // let entities = await db.getAllAsync<ItemEntity>(
- //   'SELECT * FROM items'
- // )
- // console.log("Entities: ", entities);
-  
-}
-
 const styles = StyleSheet.create({
+  addItem: {
+    borderRadius: 4,
+    borderWidth: 1,
+    alignItems: 'center',
+    backgroundColor: '#006742',
+    padding: 10,
+
+  },
   container: {
     backgroundColor: '#fff',
     flex: 1,
-    paddingTop: 64,
+    paddingTop: 32,
   },
   heading: {
     fontSize: 20,
