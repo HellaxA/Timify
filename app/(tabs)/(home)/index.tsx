@@ -14,7 +14,8 @@ import {
   View,
 } from 'react-native';
 import { ItemEntity } from '@/src/Item';
-import { Category } from '@/src/Category';// TODO change to CategoryEntity
+import { CategoryEntity } from '@/src/Category';
+import { migrateDbIfNeeded } from '@/db/db_setup';
 
 export default function HomeScreen() {
   return (
@@ -29,7 +30,7 @@ export function Main() {
   const db = useSQLiteContext();
   const [text, setText] = useState('');
   const [items, setItems] = useState<ItemEntity[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategoryEntity[]>([]);
 
   const refetchItems = useCallback(() => {
     async function refetch() {
@@ -123,27 +124,6 @@ async function addItemAsync(db: SQLiteDatabase, text: string): Promise<void> {
  // )
  // console.log("Entities: ", entities);
   
-}
-
-async function migrateDbIfNeeded(db: SQLiteDatabase) {
-  const DATABASE_VERSION = 1;
-  let result = await db.getFirstAsync<{ user_version: number; }>('PRAGMA user_version');
-  if (result == null) {
-    throw new Error('Failed to retrieve the current database version');
-  }
-  let currentDbVersion = result.user_version;
-
-  console.log('Current db version: ', currentDbVersion);
-  await db.execAsync(`
-      PRAGMA journal_mode = 'wal';
-      CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY NOT NULL, description TEXT);`);
-  currentDbVersion = 1;
-  // if (currentDbVersion === 1) {
-  //   Add more migrations
-  // }
-  await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
-
-
 }
 
 const styles = StyleSheet.create({
