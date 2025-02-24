@@ -1,4 +1,5 @@
-import { Link, useFocusEffect } from 'expo-router';
+import { Link, useFocusEffect, router} from 'expo-router';
+import {  } from 'expo-router';
 import { useState, useEffect, useCallback } from 'react';
 import {
   SQLiteProvider,
@@ -91,8 +92,11 @@ export function Main() {
           ))}
         </View>
       </ScrollView>
-      <TouchableOpacity style={styles.addItem}>
-        <Link href="/addItem" style={styles.heading}>Add Item</Link>
+      <TouchableOpacity
+        style={styles.addItem}
+        onPress={() => router.push("/addItem")}
+      >
+        <Text style={styles.heading}>Add Item</Text>
       </TouchableOpacity>
     </View>
   );
