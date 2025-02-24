@@ -22,7 +22,14 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
 }
 export async function deleteItemAsync(db: SQLiteDatabase, id: number): Promise<void> {
-    await db.runAsync('DELETE FROM items where id = ?', id);
+    console.log('In delete DB function')
+    try {
+        //TODO fix access to closed resource when navigation.back().
+        await db.runAsync('DELETE FROM items where id = ?', id);
+    } catch(exc) {
+        console.log('delete Error: ', exc);
+    }
+    console.log('After deletion');
 }
 
 export async function addItemAsyncDefaultDb(text: string): Promise<void> {

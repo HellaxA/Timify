@@ -29,7 +29,6 @@ export function Main() {
                 onChangeText={(text) => setText(text)}
                 onSubmitEditing={async () => {
                     await addItemAsync(db, text);
-                    // navigation.back() from react didn't work, I think due to different routing comparing to Expo.
                     router.navigate('/');
           
                 }}

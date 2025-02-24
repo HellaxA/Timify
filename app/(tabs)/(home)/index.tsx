@@ -47,20 +47,35 @@ export function Main() {
     refetch();
   }, [db]);
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     console.log('In useEffect');
     refetchItems();
-  }, []);
-  // TODO deleteItem doesn't work after addItem on the separate page
-  // TODO list isn't updated after adding an item 
-
-
+  }, [db]));
+  // const refetchItems = async function() {
+  //     // TODO add to README.md
+  //     // -> React renders the element, executes Main, executes setItems -> setItems calls re-render -> infinite loop.
+  //     // setItems(
+  //       // db.getAllSync<ItemEntity>(
+  //       //   'SELECT * FROM items'
+  //       // )
+  //     // );
+  //   await db.withExclusiveTransactionAsync(async () => {
+  //     console.log('In db.exec')
+  //     setItems(
+  //       await db.getAllAsync<ItemEntity>(
+  //         'SELECT * FROM items'
+  //       )
+  //     );
+  //   })
+  // }
+  // TODO add to README.md
+  // useFocusEffect if you want it to reexecute the function everytime user focuses on this Screen.
   // useFocusEffect(
   //   useCallback(() => {
-  //     console.log('Screen focues, executing refetech...');
   //     refetchItems();
-  //   }, [refetchItems])
+  //   }, [db])
   // );
+
 
   return (
     <View style={styles.container}>
@@ -86,7 +101,7 @@ export function Main() {
               item={item}
               onPressItem={async (id) => {
                 await deleteItemAsync(db, id);
-                await refetchItems();
+                refetchItems();
               }}
             />
           ))}
