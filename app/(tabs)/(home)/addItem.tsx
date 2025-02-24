@@ -1,7 +1,7 @@
 import { addItemAsync, addItemAsyncDefaultDb } from '@/db/db_setup';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
-import { useNavigation } from "@react-navigation/native";
+import { router } from 'expo-router';
 import {
   ScrollView,
   StyleSheet,
@@ -21,7 +21,6 @@ export default function AddItemScreen() {
   );
 }
 export function Main() {
-    const navigation = useNavigation();
     const db = useSQLiteContext();
     const [text, setText] = useState('');
     return (
@@ -30,9 +29,8 @@ export function Main() {
                 onChangeText={(text) => setText(text)}
                 onSubmitEditing={async () => {
                     await addItemAsync(db, text);
-                    // await refetchItems();
-                    // setText('');
-                    navigation.goBack();
+                    // navigation.back() from react didn't work, I think due to different routing comparing to Expo.
+                    router.navigate('/');
           
                 }}
                 placeholder="What have you done this time?"
