@@ -1,5 +1,5 @@
 # Things I learned 
-1. <SQLiteProvider> has to be at the top layout level to provide access to all the Screens.
+1. SQLiteProvider has to be at the top layout level to provide access to all the Screens.
  Otherwise during navigation.back() between pages with individual SQLiteProvider the DB would be closed. 
 2. useFocusEffect() executes when you navigate to the screen, or come back to the screen. It DOESN'T run on re-render.
 3. useCallback() is used in conjunction with useFocusEffect(). If we just pass our anon function to useFocusEffect(), on each re-render the function 
