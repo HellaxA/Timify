@@ -29,23 +29,15 @@ export function Main() {
   const [items, setItems] = useState<ItemEntity[]>([]);
   const [categories, setCategories] = useState<CategoryEntity[]>([]);
 
-  const refetchItems = async function() {
-      // TODO add to README.md
-      // -> React renders the element, executes Main, executes setItems -> setItems calls re-render -> infinite loop.
-      setItems(
-        db.getAllSync<ItemEntity>(
-          'SELECT * FROM items'
-        )
-      );
-  }
-  // TODO add to README.md
-  // useFocusEffect if you want it to reexecute the function everytime user focuses on this Screen.
-  useFocusEffect(
-    useCallback(() => {
-      refetchItems();
-    }, [db])
-  );
-
+  const refetchItems = useCallback(() => {
+    setItems(
+      db.getAllSync<ItemEntity>(
+        'SELECT * FROM items'
+      )
+    );
+  }, []);
+  
+  useFocusEffect(refetchItems);
 
   return (
     <View style={styles.container}>
