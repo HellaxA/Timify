@@ -1,22 +1,17 @@
-import { addItemAsync, addItemAsyncDefaultDb } from '@/db/db_setup';
-import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
+import { addItemAsync } from '@/db/db_setup';
+import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import { router } from 'expo-router';
 import {
-  ScrollView,
   StyleSheet,
-  Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 
 export default function AddItemScreen() {
   return (
     <View >
-      <SQLiteProvider databaseName='timify.db'>
-        <Main />
-      </SQLiteProvider>
+      <Main />
     </View>
   );
 }
@@ -29,7 +24,7 @@ export function Main() {
                 onChangeText={(text) => setText(text)}
                 onSubmitEditing={async () => {
                     await addItemAsync(db, text);
-                    router.navigate('/');
+                    router.back();
           
                 }}
                 placeholder="What have you done this time?"

@@ -23,33 +23,15 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
 }
 export async function deleteItemAsync(db: SQLiteDatabase, id: number): Promise<void> {
     console.log('In delete DB function')
+    console.log('DB: ', db);
     try {
-        //TODO fix access to closed resource when navigation.back().
         await db.runAsync('DELETE FROM items where id = ?', id);
     } catch(exc) {
-        console.log('delete Error: ', exc);
+        console.error('Error deleting: ', exc);
     }
     console.log('After deletion');
 }
 
-export async function addItemAsyncDefaultDb(text: string): Promise<void> {
-    const db = useSQLiteContext();
-    if (text !== '') {
-        try {
-            await db.runAsync(
-                'INSERT INTO items (description) VALUES (?);',
-                text
-            );
-        } catch (error) {
-            console.error('Error inserting into database:', error);
-        }
-    }
-    // let entities = await db.getAllAsync<ItemEntity>(
-    //   'SELECT * FROM items'
-    // )
-    // console.log("Entities: ", entities);
-
-}
 export async function addItemAsync(db: SQLiteDatabase, text: string): Promise<void> {
     if (text !== '') {
         try {

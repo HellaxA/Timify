@@ -1,80 +1,50 @@
-import { Link, useFocusEffect, router} from 'expo-router';
+import { useFocusEffect, router} from 'expo-router';
 import {  } from 'expo-router';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import {
-  SQLiteProvider,
-  useSQLiteContext,
-  type SQLiteDatabase,
+  useSQLiteContext
 } from 'expo-sqlite';
 import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { ItemEntity } from '@/src/Item';
 import { CategoryEntity } from '@/src/Category';
-import { migrateDbIfNeeded, addItemAsync, deleteItemAsync } from '@/db/db_setup';
+import { deleteItemAsync } from '@/db/db_setup';
 
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
-      <SQLiteProvider databaseName='timify.db' onInit={migrateDbIfNeeded}>
-        <Main />
-      </SQLiteProvider>
+      <Main />
     </View>
   );
 }
 export function Main() {
+  console.log('Main begin');
+
   const db = useSQLiteContext();
   const [items, setItems] = useState<ItemEntity[]>([]);
   const [categories, setCategories] = useState<CategoryEntity[]>([]);
 
-  const refetchItems = useCallback(() => {
-    async function refetch() {
-      console.log('Executing refetch()')
-      await db.withExclusiveTransactionAsync(async () => {
-        console.log('In db.exec')
-        setItems(
-          await db.getAllAsync<ItemEntity>(
-            'SELECT * FROM items'
-          )
-        );
-      })
-    }
-    refetch();
-  }, [db]);
-
-  useFocusEffect(useCallback(() => {
-    console.log('In useEffect');
-    refetchItems();
-  }, [db]));
-  // const refetchItems = async function() {
-  //     // TODO add to README.md
-  //     // -> React renders the element, executes Main, executes setItems -> setItems calls re-render -> infinite loop.
-  //     // setItems(
-  //       // db.getAllSync<ItemEntity>(
-  //       //   'SELECT * FROM items'
-  //       // )
-  //     // );
-  //   await db.withExclusiveTransactionAsync(async () => {
-  //     console.log('In db.exec')
-  //     setItems(
-  //       await db.getAllAsync<ItemEntity>(
-  //         'SELECT * FROM items'
-  //       )
-  //     );
-  //   })
-  // }
+  const refetchItems = async function() {
+      // TODO add to README.md
+      // -> React renders the element, executes Main, executes setItems -> setItems calls re-render -> infinite loop.
+      setItems(
+        db.getAllSync<ItemEntity>(
+          'SELECT * FROM items'
+        )
+      );
+  }
   // TODO add to README.md
   // useFocusEffect if you want it to reexecute the function everytime user focuses on this Screen.
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     refetchItems();
-  //   }, [db])
-  // );
+  useFocusEffect(
+    useCallback(() => {
+      refetchItems();
+    }, [db])
+  );
 
 
   return (
