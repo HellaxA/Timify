@@ -5,3 +5,4 @@
 3. useCallback() is used in conjunction with useFocusEffect(). If we just pass our anon function to useFocusEffect(), on each re-render the function 
 reference will change. If we useCallback() the function is memoizated. It DOESN'T affect the function execution, only memoization.
 4. If we use useState.setItems() without useFocusEffect(), it triggers the re-render, executes Main, executes setItems -> setItems calls re-render -> infinite loop.
+5. useEffect() runs on every re-render after the component is mounted. If you pass [] as a 2nd arg, it runs only on 1 render.
