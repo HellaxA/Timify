@@ -43,9 +43,18 @@ export async function addItemAsync(db: SQLiteDatabase, text: string): Promise<vo
             console.error('Error inserting into database:', error);
         }
     }
-    // let entities = await db.getAllAsync<ItemEntity>(
-    //   'SELECT * FROM items'
-    // )
-    // console.log("Entities: ", entities);
+}
 
+export async function updateItemAsync(db: SQLiteDatabase, text: string, id: number): Promise<void> {
+    if (text !== '') {
+        try {
+            await db.runAsync(
+                'UPDATE items SET description = ? WHERE id = ?;',
+                text,
+                id
+            );
+        } catch (error) {
+            console.error('Error updating the item:', error);
+        }
+    }
 }

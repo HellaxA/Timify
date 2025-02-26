@@ -14,6 +14,7 @@ import {
 import { ItemEntity } from '@/src/Item';
 import { CategoryEntity } from '@/src/Category';
 import { deleteItemAsync } from '@/db/db_setup';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 export default function HomeScreen() {
   return (
@@ -32,12 +33,16 @@ export function Main() {
   const refetchItems = useCallback(() => {
     setItems(
       db.getAllSync<ItemEntity>(
-        'SELECT * FROM items'
+        'SELECT * FROM items'// TODO get the logic to db_setup.sql
       )
     );
   }, []);
   
   useFocusEffect(refetchItems);
+
+  function editItem(id: number) {
+    router.push(`/editItem?itemId=${id}`);
+  }
 
   return (
     <View style={styles.container}>
@@ -61,9 +66,10 @@ export function Main() {
             <Item
               key={item.id}
               item={item}
-              onPressItem={async (id) => {
-                await deleteItemAsync(db, id);
-                refetchItems();
+              onPressItem={/*async*/ (id) => {
+                // await deleteItemAsync(db, id);
+                editItem(id);
+                // refetchItems();
               }}
             />
           ))}
@@ -74,6 +80,7 @@ export function Main() {
         onPress={() => router.push("/addItem")}
       >
         <Text style={styles.heading}>Add Item</Text>
+
       </TouchableOpacity>
     </View>
   );

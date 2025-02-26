@@ -14,6 +14,7 @@ export default function HomeLayout() {
       }}>
       <Stack.Screen name="index" options={{ headerShown: false }}/>
       <Stack.Screen name="addItem" options={{ title: 'Add Item' }}/>
+      <Stack.Screen name="editItem" options={{ title: 'Edit Item' }}/>
     </Stack>
   );
 }
