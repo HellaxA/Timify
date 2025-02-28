@@ -13,8 +13,6 @@ import {
 } from 'react-native';
 import { ItemEntity } from '@/src/Item';
 import { CategoryEntity } from '@/src/Category';
-import { deleteItemAsync } from '@/db/db_setup';
-import AntDesign from '@expo/vector-icons/AntDesign';
 
 export default function HomeScreen() {
   return (
@@ -24,8 +22,6 @@ export default function HomeScreen() {
   );
 }
 export function Main() {
-  console.log('Main begin');
-
   const db = useSQLiteContext();
   const [items, setItems] = useState<ItemEntity[]>([]);
   const [categories, setCategories] = useState<CategoryEntity[]>([]);
@@ -46,19 +42,6 @@ export function Main() {
 
   return (
     <View style={styles.container}>
-      {/* <View style={styles.flexRow}>
-        <TextInput
-          onChangeText={(text) => setText(text)}
-          onSubmitEditing={async () => {
-            await addItemAsync(db, text);
-            await refetchItems();
-            setText('');
-          }}
-          placeholder="What have you done this time?"
-          style={styles.input}
-          value={text}
-        />
-      </View> */}
       <ScrollView style={styles.listArea}>
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionHeading}>Logged Activities</Text>
@@ -66,10 +49,8 @@ export function Main() {
             <Item
               key={item.id}
               item={item}
-              onPressItem={/*async*/ (id) => {
-                // await deleteItemAsync(db, id);
+              onPressItem={ (id) => {
                 editItem(id);
-                // refetchItems();
               }}
             />
           ))}
@@ -101,6 +82,7 @@ function Item({item, onPressItem}:
       <Text style={styles.itemText}>
         {description}
       </Text>
+      
     </TouchableOpacity>
   );
 }
@@ -117,12 +99,13 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     flex: 1,
-    paddingTop: 32,
+    // paddingTop: 32,
   },
   heading: {
     fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
+    color: 'white'
   },
   flexRow: {
     flexDirection: 'row',

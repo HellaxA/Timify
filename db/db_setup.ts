@@ -1,5 +1,4 @@
 import {
-    useSQLiteContext,
     type SQLiteDatabase,
 } from 'expo-sqlite';
 
@@ -21,15 +20,12 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     // }
     await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
 }
-export async function deleteItemAsync(db: SQLiteDatabase, id: number): Promise<void> {
-    console.log('In delete DB function')
-    console.log('DB: ', db);
+export async function deleteItemAsync(db: SQLiteDatabase, id: number | null): Promise<void> {
     try {
         await db.runAsync('DELETE FROM items where id = ?', id);
     } catch(exc) {
         console.error('Error deleting: ', exc);
     }
-    console.log('After deletion');
 }
 
 export async function addItemAsync(db: SQLiteDatabase, text: string): Promise<void> {

@@ -5,14 +5,14 @@ export default function HomeLayout() {
     <Stack
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#f4511e'
+          backgroundColor: '#006742'
         },
         headerTintColor: '#fff',
         headerTitleStyle: {
           fontWeight: 'bold'
         }
       }}>
-      <Stack.Screen name="index" options={{ headerShown: false }}/>
+      <Stack.Screen name="index" options={{ title: 'Timify' }}/>
       <Stack.Screen name="addItem" options={{ title: 'Add Item' }}/>
       <Stack.Screen name="editItem" options={{ title: 'Edit Item' }}/>
     </Stack>

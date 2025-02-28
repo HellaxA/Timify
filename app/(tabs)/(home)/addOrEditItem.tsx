@@ -1,11 +1,9 @@
-
 import { addItemAsync, updateItemAsync } from '@/db/db_setup';
 import { ItemEntity } from '@/src/Item';
 import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 import {
-  Text,
   StyleSheet,
   View,
   TextInput
@@ -15,7 +13,7 @@ interface Props {
     itemId: number | null;
 }
 
-export default function Main({ itemId }: Props) {
+export default function AddOrEditItem({ itemId }: Props) {
     const db = useSQLiteContext();
     const [text, setText] = useState('');
     const [item, setItem] = useState<ItemEntity>();
@@ -24,7 +22,6 @@ export default function Main({ itemId }: Props) {
         if (itemId != null) {
             const fetchItem = () => {
                 const fetchedItem = db.getFirstSync<ItemEntity>('SELECT * FROM items WHERE id = ?', itemId); // TODO get the logic to db_setup.sql
-                console.log(fetchedItem);
                 if (fetchedItem != null) {
                     setItem(fetchedItem);
                 }
@@ -55,7 +52,6 @@ export default function Main({ itemId }: Props) {
 }
 const styles = StyleSheet.create({
   input: {
-    // borderColor: '#4630eb',
     borderRadius: 4,
     borderWidth: 1,
     flex: 1,

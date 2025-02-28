@@ -1,13 +1,12 @@
 import {
-  StyleSheet,
   View,
 } from 'react-native';
-import Main from './main';
+import AddOrEditItem from './addOrEditItem';
 
 export default function AddItemScreen() {
   return (
     <View>
-      <Main itemId={null} />
+      <AddOrEditItem itemId={null} />
     </View>
   );
 }
