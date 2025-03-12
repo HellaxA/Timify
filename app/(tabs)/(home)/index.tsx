@@ -11,8 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { ItemEntity } from '@/src/Item';
-import { CategoryEntity } from '@/src/Category';
+import { ItemEntity } from '@/src/entities/item';
 
 export default function HomeScreen() {
   return (
@@ -24,7 +23,6 @@ export default function HomeScreen() {
 export function Main() {
   const db = useSQLiteContext();
   const [items, setItems] = useState<ItemEntity[]>([]);
-  const [categories, setCategories] = useState<CategoryEntity[]>([]);
 
   const refetchItems = useCallback(() => {
     setItems(

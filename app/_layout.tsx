@@ -5,8 +5,18 @@ import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 export default function RootLayout() {
   return (
     <SQLiteProvider databaseName='timify.db' onInit={migrateDbIfNeeded}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#006742',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 20
+          }
+        }}>
+        <Stack.Screen name="(tabs)" options={{ title: 'Timify' }} />
       </Stack>
     </SQLiteProvider>
 

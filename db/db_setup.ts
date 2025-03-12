@@ -1,3 +1,4 @@
+import { CategoryEntity } from '@/src/entities/category';
 import {
     type SQLiteDatabase,
 } from 'expo-sqlite';
@@ -13,7 +14,13 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     console.log('Current db version: ', currentDbVersion);
     await db.execAsync(`
       PRAGMA journal_mode = 'wal';
-      CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY NOT NULL, description TEXT);`);
+      CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY NOT NULL, description TEXT);
+      CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY NOT NULL, name TEXT);
+    `);
+
+    // await db.execAsync(
+    //     `INSERT INTO categories (name) VALUES ('New Name')`
+    // )
     currentDbVersion = 1;
     // if (currentDbVersion === 1) {
     //   Add more migrations
@@ -53,4 +60,8 @@ export async function updateItemAsync(db: SQLiteDatabase, text: string, id: numb
             console.error('Error updating the item:', error);
         }
     }
+}
+
+export function fetchCategories(db: SQLiteDatabase) {
+    return db.getAllSync<CategoryEntity>('SELECT * FROM categories');
 }
