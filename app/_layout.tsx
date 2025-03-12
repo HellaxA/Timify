@@ -17,6 +17,8 @@ export default function RootLayout() {
           }
         }}>
         <Stack.Screen name="(tabs)" options={{ title: 'Timify' }} />
+      <Stack.Screen name="addItem" options={{ title: 'Add Item' }}/>
+      <Stack.Screen name="editItem" options={{ title: 'Edit Item' }}/>
       </Stack>
     </SQLiteProvider>
 
