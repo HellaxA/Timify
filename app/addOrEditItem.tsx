@@ -1,8 +1,8 @@
-import { addItemAsync, fetchCategories, updateItemAsync } from '@/db/db_setup';
+import { addItemAsync, fetchCategories, updateItemAsync, updateItemWithCategoryAsync } from '@/db/db_setup';
 import { ItemEntity } from '@/src/entities/item';
 import { router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { SetStateAction, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -18,29 +18,48 @@ interface Props {
 export default function AddOrEditItem({ itemId }: Props) {
     const db = useSQLiteContext();
     const [text, setText] = useState('');
+
+    const [categories, setCategories] = useState<CategoryEntity[]>([]);
+    const refetchCategories = useCallback(() => {
+        setCategories(
+            fetchCategories(db)
+       );
+    }, []);
+    useFocusEffect(refetchCategories);
+
     const [item, setItem] = useState<ItemEntity>();
-    const [selectedValue, setSelectedValue] = useState<string>('apple');
     useEffect(() => {
-        if (itemId != null) {
-            const fetchItem = () => {
+        const fetchItem = () => {
+            if (itemId != null) {
                 const fetchedItem = db.getFirstSync<ItemEntity>('SELECT * FROM items WHERE id = ?', itemId); // TODO get the logic to db_setup.sql
                 if (fetchedItem != null) {
                     setItem(fetchedItem);
                 }
                 setText(fetchedItem?.description || '');
             };
-            fetchItem();
         }
+        fetchItem();
     }, [itemId]);
 
-    const [categories, setCategories] = useState<CategoryEntity[]>([]);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>();
+    useEffect(() => {//TODO move to useEffect up in the Item
+        const fetchCategory = () => {
+            if (itemId != null) {
+                const fetchedCategory = db.getFirstSync<CategoryEntity>('SELECT * FROM categories WHERE id = (SELECT category_id FROM items WHERE id = ?)', itemId); // TODO get the logic to db_setup.sql
+                if (fetchedCategory != null) {
+                    console.log('Fetched cat for this item: ' + fetchedCategory.id);
+                    setSelectedCategoryId(fetchedCategory.id);
+                }
 
-    const refetchCategories = useCallback(() => {
-       setCategories(
-            fetchCategories(db)
-       );
-    }, []);
-    useFocusEffect(refetchCategories);
+            } else {
+                console.log('Cats len: ' + categories.length);
+                if (categories.length !== 0) {
+                    setSelectedCategoryId(categories[0].id);
+                }
+            }
+        }
+        fetchCategory();
+    }, [itemId, categories]);
 
     return (
         <View style={styles.container}>
@@ -48,12 +67,21 @@ export default function AddOrEditItem({ itemId }: Props) {
                 <TextInput
                     onChangeText={(text) => setText(text)}
                     onSubmitEditing={async () => {
-                        if (itemId == null) {
-                            await addItemAsync(db, text);
+                        if (selectedCategoryId == null) {
+                            console.log('selectedCategoryId is null');
                         } else {
-                            await updateItemAsync(db, text, itemId);
+                            if (itemId == null) {
+                                await addItemAsync(db, text, selectedCategoryId);
+                            } else {
+                                if (selectedCategoryId === item?.categoryId) {
+                                    await updateItemAsync(db, text, itemId);
+                                } else {
+                                    console.log("Selected cat id: " + selectedCategoryId);
+                                    await updateItemWithCategoryAsync(db, text, itemId, selectedCategoryId);
+                                }
+                            }
+                            router.back();
                         }
-                        router.back();
                     }}
                     placeholder="What have you done this time?"
                     style={styles.input}
@@ -62,12 +90,14 @@ export default function AddOrEditItem({ itemId }: Props) {
             </View>
             <View>
                 <Picker
-                    selectedValue={selectedValue}
-                    onValueChange={(itemValue: SetStateAction<string>, itemIndex: any) => setSelectedValue(itemValue)}
+                    selectedValue={selectedCategoryId}
+                    onValueChange={(categoryId) => {
+                        setSelectedCategoryId(categoryId);
+                    }}
                     style={styles.picker}
                 >
                     {categories.map((category) => (
-                        <Picker.Item label={category.name} value={category.name} key={category.id} />
+                        <Picker.Item label={category.name} value={category.id} key={category.id} />
                     ))}
 
                 </Picker>

@@ -14,7 +14,8 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     console.log('Current db version: ', currentDbVersion);
     await db.execAsync(`
       PRAGMA journal_mode = 'wal';
-      CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY NOT NULL, description TEXT);
+      PRAGMA foreign_keys = ON;
+      CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY NOT NULL, description TEXT, category_id INTEGER NOT NULL, FOREIGN KEY (category_id) REFERENCES categories(id));
       CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY NOT NULL, name TEXT);
     `);
 
@@ -35,12 +36,13 @@ export async function deleteItemAsync(db: SQLiteDatabase, id: number | null): Pr
     }
 }
 
-export async function addItemAsync(db: SQLiteDatabase, text: string): Promise<void> {
+export async function addItemAsync(db: SQLiteDatabase, text: string, categoryId: number): Promise<void> {
     if (text !== '') {
         try {
             await db.runAsync(
-                'INSERT INTO items (description) VALUES (?);',
-                text
+                'INSERT INTO items (description, category_id) VALUES (?, ?);',
+                text,
+                categoryId
             );
         } catch (error) {
             console.error('Error inserting into database:', error);
@@ -54,6 +56,20 @@ export async function updateItemAsync(db: SQLiteDatabase, text: string, id: numb
             await db.runAsync(
                 'UPDATE items SET description = ? WHERE id = ?;',
                 text,
+                id
+            );
+        } catch (error) {
+            console.error('Error updating the item:', error);
+        }
+    }
+}
+export async function updateItemWithCategoryAsync(db: SQLiteDatabase, text: string, id: number, categoryId: number): Promise<void> {
+    if (text !== '') {
+        try {
+            await db.runAsync(
+                'UPDATE items SET description = ?, category_id = ? WHERE id = ?;',
+                text,
+                categoryId,
                 id
             );
         } catch (error) {

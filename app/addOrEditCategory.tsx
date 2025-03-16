@@ -14,6 +14,7 @@ interface Props {
 }
 
 export default function AddOrEditCategory({ categoryId }: Props) {
+    console.log('AddOrEdit catId: ' + categoryId);
     const db = useSQLiteContext();
     const [text, setText] = useState('');
     const [category, setCategory] = useState<CategoryEntity>();
