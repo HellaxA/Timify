@@ -65,3 +65,38 @@ export async function updateItemAsync(db: SQLiteDatabase, text: string, id: numb
 export function fetchCategories(db: SQLiteDatabase) {
     return db.getAllSync<CategoryEntity>('SELECT * FROM categories');
 }
+
+export async function deleteCategoryAsync(db: SQLiteDatabase, id: number | null): Promise<void> {
+    try {
+        await db.runAsync('DELETE FROM categories where id = ?', id);
+    } catch(exc) {
+        console.error('Error deleting category: ', exc);
+    }
+}
+
+export async function addCategoryAsync(db: SQLiteDatabase, text: string): Promise<void> {
+    if (text !== '') {
+        try {
+            await db.runAsync(
+                'INSERT INTO categories (name) VALUES (?);',
+                text
+            );
+        } catch (error) {
+            console.error('Error inserting category into database:', error);
+        }
+    }
+}
+
+export async function updateCategoryAsync(db: SQLiteDatabase, text: string, id: number): Promise<void> {
+    if (text !== '') {
+        try {
+            await db.runAsync(
+                'UPDATE categories SET name = ? WHERE id = ?;',
+                text,
+                id
+            );
+        } catch (error) {
+            console.error('Error updating the category:', error);
+        }
+    }
+}

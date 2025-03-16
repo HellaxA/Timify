@@ -1,6 +1,6 @@
 import { migrateDbIfNeeded } from "@/db/db_setup";
 import { Stack } from "expo-router";
-import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
+import { SQLiteProvider } from 'expo-sqlite';
 
 export default function RootLayout() {
   return (
@@ -19,6 +19,8 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ title: 'Timify' }} />
       <Stack.Screen name="addItem" options={{ title: 'Add Item' }}/>
       <Stack.Screen name="editItem" options={{ title: 'Edit Item' }}/>
+      <Stack.Screen name="addCategory" options={{ title: 'Add Category' }}/>
+      <Stack.Screen name="editCategory" options={{ title: 'Edit Category' }}/>
       </Stack>
     </SQLiteProvider>
 

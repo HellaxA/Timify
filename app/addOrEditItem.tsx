@@ -1,14 +1,15 @@
-import { addItemAsync, updateItemAsync } from '@/db/db_setup';
+import { addItemAsync, fetchCategories, updateItemAsync } from '@/db/db_setup';
 import { ItemEntity } from '@/src/entities/item';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { SetStateAction, useEffect, useState } from 'react';
+import { SetStateAction, useCallback, useEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
   TextInput,
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
+import { CategoryEntity } from '@/src/entities/category';
 
 interface Props {
     itemId: number | null;
@@ -31,6 +32,15 @@ export default function AddOrEditItem({ itemId }: Props) {
             fetchItem();
         }
     }, [itemId]);
+
+    const [categories, setCategories] = useState<CategoryEntity[]>([]);
+
+    const refetchCategories = useCallback(() => {
+       setCategories(
+            fetchCategories(db)
+       );
+    }, []);
+    useFocusEffect(refetchCategories);
 
     return (
         <View style={styles.container}>
@@ -56,9 +66,10 @@ export default function AddOrEditItem({ itemId }: Props) {
                     onValueChange={(itemValue: SetStateAction<string>, itemIndex: any) => setSelectedValue(itemValue)}
                     style={styles.picker}
                 >
-                    <Picker.Item label="Apple" value="apple" />
-                    <Picker.Item label="Banana" value="banana" />
-                    <Picker.Item label="Orange" value="orange" />
+                    {categories.map((category) => (
+                        <Picker.Item label={category.name} value={category.name} key={category.id} />
+                    ))}
+
                 </Picker>
             </View>
         </View>

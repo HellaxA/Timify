@@ -1,11 +1,11 @@
 import { fetchCategories } from '@/db/db_setup';
 import { CategoryEntity } from '@/src/entities/category';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity} from 'react-native';
 
-export default function SettingsScreen() {
+export default function CategoriesScreen() {
     const db = useSQLiteContext();
     const [categories, setCategories] = useState<CategoryEntity[]>([]);
 
@@ -17,31 +17,39 @@ export default function SettingsScreen() {
     useFocusEffect(refetchCategories);
 
     return (
-        <View style={styles.container}>
-            <ScrollView style={styles.listArea}>
-                <View style={styles.sectionContainer}>
-                    {categories.map((category) => (
-                        <TouchableOpacity
-                            key={category.id}
-                            onPress={() => editCategory()}
-                            style={(styles.item)}
-                        >
+      <View style={styles.container}>
+        <ScrollView style={styles.listArea}>
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionHeading}>Categories</Text>
+            {categories.map((category) => (
+              <TouchableOpacity
+                key={category.id}
+                onPress={() => editCategory(category.id)}
+                style={(styles.item)}
+              >
 
-                            <Text 
-                                style={styles.itemText}>
-                                {category.name}
-                            </Text>
+                <Text
+                  style={styles.itemText}>
+                  {category.name}
+                </Text>
 
-                        </TouchableOpacity>
-                    ))}
-                </View>
-            </ScrollView>
-        </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
+        <TouchableOpacity
+          style={styles.addItem}
+          onPress={() => router.push("/addCategory")}
+        >
+          <Text style={styles.heading}>Add Category</Text>
+
+        </TouchableOpacity>
+      </View>
     );
 }
 
-function editCategory() {
-    console.log('Editing Category...');
+function editCategory(id: number) {
+  router.push(`/editCategory?categoryId=${id}`);
 }
 
 const styles = StyleSheet.create({
