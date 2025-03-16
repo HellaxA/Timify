@@ -8,3 +8,4 @@ reference will change. If we useCallback() the function is memoizated. It DOESN'
 5. useEffect() runs on every re-render after the component is mounted. If you pass [] as a 2nd arg, it runs only on 1 render.
 6. By using Stack.Screen in the components I can dynamically change the headers by adding functionality like handleDelete() in editItem.tsx.
     - However, headerRight accepts onPressIn, not onPress. 
+7. useFocusEffect() is executed after useEffect() during React Navigation Lifecycle.

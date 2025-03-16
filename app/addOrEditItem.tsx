@@ -21,15 +21,16 @@ export default function AddOrEditItem({ itemId }: Props) {
 
     const [categories, setCategories] = useState<CategoryEntity[]>([]);
     const refetchCategories = useCallback(() => {
-        setCategories(
-            fetchCategories(db)
-       );
-    }, []);
-    useFocusEffect(refetchCategories);
+        const fetchedCategories = fetchCategories(db);
+        setCategories(fetchedCategories);
+    }, [db]);
+    useFocusEffect(refetchCategories);//TODO remove useFocusEffect maybe
 
     const [item, setItem] = useState<ItemEntity>();
+    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>();
     useEffect(() => {
         const fetchItem = () => {
+            console.log('fetching item');
             if (itemId != null) {
                 const fetchedItem = db.getFirstSync<ItemEntity>('SELECT * FROM items WHERE id = ?', itemId); // TODO get the logic to db_setup.sql
                 if (fetchedItem != null) {
@@ -38,11 +39,6 @@ export default function AddOrEditItem({ itemId }: Props) {
                 setText(fetchedItem?.description || '');
             };
         }
-        fetchItem();
-    }, [itemId]);
-
-    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>();
-    useEffect(() => {//TODO move to useEffect up in the Item
         const fetchCategory = () => {
             if (itemId != null) {
                 const fetchedCategory = db.getFirstSync<CategoryEntity>('SELECT * FROM categories WHERE id = (SELECT category_id FROM items WHERE id = ?)', itemId); // TODO get the logic to db_setup.sql
@@ -58,8 +54,12 @@ export default function AddOrEditItem({ itemId }: Props) {
                 }
             }
         }
-        fetchCategory();
-    }, [itemId, categories]);
+        if (categories.length > 0) {
+            fetchCategory();//TODO what if there are 0 categories available
+        } 
+        fetchItem();//It is called twice on re-render because render -> useEffect() -> fetchItem() -> useFocusEffect() -> setCategories() -> re-render -> fetchItem()
+
+    }, [itemId, categories, db]);
 
     return (
         <View style={styles.container}>
