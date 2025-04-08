@@ -70,7 +70,7 @@ function Item({item, onPressItem}:
     item: ItemEntity;
     onPressItem: (id: number) => void | Promise<void>;
   }) {
-  const { id, description } = item;
+  const { id, hours, minutes } = item;
   return (
     <TouchableOpacity
       onPress={() => onPressItem?.(id) }
@@ -78,7 +78,7 @@ function Item({item, onPressItem}:
     >
 
       <Text style={styles.itemText}>
-        {description}
+        {hours}h {minutes}m
       </Text>
       
     </TouchableOpacity>

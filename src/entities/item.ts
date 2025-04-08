@@ -1,6 +1,7 @@
 export interface ItemEntity {
   id: number;
-  description: string;
+  hours: number;
+  minutes: number;
   categoryId: number;
 }
 

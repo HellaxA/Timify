@@ -15,7 +15,7 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     await db.execAsync(`
       PRAGMA journal_mode = 'wal';
       PRAGMA foreign_keys = ON;
-      CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY NOT NULL, description TEXT, category_id INTEGER NOT NULL, FOREIGN KEY (category_id) REFERENCES categories(id));
+      CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY NOT NULL, hours INTEGER, minutes INTEGER, category_id INTEGER NOT NULL, FOREIGN KEY (category_id) REFERENCES categories(id));
       CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY NOT NULL, name TEXT);
     `);
 
@@ -36,12 +36,13 @@ export async function deleteItemAsync(db: SQLiteDatabase, id: number | null): Pr
     }
 }
 
-export async function addItemAsync(db: SQLiteDatabase, text: string, categoryId: number): Promise<void> {
-    if (text !== '') {
+export async function addItemAsync(db: SQLiteDatabase, hours: number, minutes: number, categoryId: number): Promise<void> {
+    if (hours !== 0 && minutes !== 0) {
         try {
             await db.runAsync(
-                'INSERT INTO items (description, category_id) VALUES (?, ?);',
-                text,
+                'INSERT INTO items (hours, minutes, category_id) VALUES (?, ?, ?);',
+                hours,
+                minutes,
                 categoryId
             );
         } catch (error) {
@@ -50,12 +51,13 @@ export async function addItemAsync(db: SQLiteDatabase, text: string, categoryId:
     }
 }
 
-export async function updateItemAsync(db: SQLiteDatabase, text: string, id: number): Promise<void> {
-    if (text !== '') {
+export async function updateItemAsync(db: SQLiteDatabase, hours: number, minutes: number, id: number): Promise<void> {
+    if (hours !== 0 && minutes !== 0) {
         try {
             await db.runAsync(
-                'UPDATE items SET description = ? WHERE id = ?;',
-                text,
+                'UPDATE items SET hours = ?, minutes = ? WHERE id = ?;',
+                hours,
+                minutes,
                 id
             );
         } catch (error) {
@@ -63,18 +65,17 @@ export async function updateItemAsync(db: SQLiteDatabase, text: string, id: numb
         }
     }
 }
-export async function updateItemWithCategoryAsync(db: SQLiteDatabase, text: string, id: number, categoryId: number): Promise<void> {
-    if (text !== '') {
-        try {
-            await db.runAsync(
-                'UPDATE items SET description = ?, category_id = ? WHERE id = ?;',
-                text,
-                categoryId,
-                id
-            );
-        } catch (error) {
-            console.error('Error updating the item:', error);
-        }
+export async function updateItemWithCategoryAsync(db: SQLiteDatabase, hours: number, minutes: number, id: number, categoryId: number): Promise<void> {
+    try {
+        await db.runAsync(
+            'UPDATE items SET description = ?, category_id = ? WHERE id = ?;',
+            hours,
+            minutes,
+            categoryId,
+            id
+        );
+    } catch (error) {
+        console.error('Error updating the item:', error);
     }
 }
 

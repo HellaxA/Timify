@@ -5,8 +5,10 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useState } from 'react';
 import {
   StyleSheet,
-  View,
   TextInput,
+  TouchableOpacity,
+  View,
+  Text
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import { CategoryEntity } from '@/src/entities/category';
@@ -17,7 +19,8 @@ interface Props {
 
 export default function AddOrEditItem({ itemId }: Props) {
     const db = useSQLiteContext();
-    const [text, setText] = useState('');
+    const [hours, setHours] = useState(0);
+    const [minutes, setMinutes] = useState(0);
 
     const [categories, setCategories] = useState<CategoryEntity[]>([]);
     const refetchCategories = useCallback(() => {
@@ -36,7 +39,8 @@ export default function AddOrEditItem({ itemId }: Props) {
                 if (fetchedItem != null) {
                     setItem(fetchedItem);
                 }
-                setText(fetchedItem?.description || '');
+                setHours(fetchedItem?.hours || 0);
+                setMinutes(fetchedItem?.minutes || 0);
             };
         }
         const fetchCategory = () => {
@@ -64,29 +68,25 @@ export default function AddOrEditItem({ itemId }: Props) {
     return (
         <View style={styles.container}>
             <View style={styles.flexRow}>
-                <TextInput
-                    onChangeText={(text) => setText(text)}
-                    onSubmitEditing={async () => {
-                        if (selectedCategoryId == null) {
-                            console.log('selectedCategoryId is null');
-                        } else {
-                            if (itemId == null) {
-                                await addItemAsync(db, text, selectedCategoryId);
-                            } else {
-                                if (selectedCategoryId === item?.categoryId) {
-                                    await updateItemAsync(db, text, itemId);
-                                } else {
-                                    console.log("Selected cat id: " + selectedCategoryId);
-                                    await updateItemWithCategoryAsync(db, text, itemId, selectedCategoryId);
-                                }
-                            }
-                            router.back();
-                        }
-                    }}
-                    placeholder="What have you done this time?"
-                    style={styles.input}
-                    value={text}
-                />
+                <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Hours</Text>
+                    <TextInput onChangeText={(hours) => setHours(+hours)}
+                        placeholder="HH"
+                        style={styles.input}
+                        value={hours.toString()}
+                        keyboardType='numeric'
+                    />
+                </View>
+                <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Minutes</Text>
+                    <TextInput
+                        onChangeText={(minutes) => setMinutes(+minutes)}
+                        placeholder='MM'
+                        style={styles.input}
+                        value={minutes.toString()}
+                        keyboardType='numeric'
+                    /> 
+                </View>
             </View>
             <View>
                 <Picker
@@ -102,19 +102,49 @@ export default function AddOrEditItem({ itemId }: Props) {
 
                 </Picker>
             </View>
+            <TouchableOpacity 
+                style={styles.addItem}
+                onPress={async () => {
+                    if (selectedCategoryId == null) {// apparently this is here in case there are 0 categories
+                        console.log('selectedCategoryId is null');
+                    } else {
+                        if (itemId == null) {
+                            await addItemAsync(db, hours, minutes, selectedCategoryId);
+                        } else {
+                            if (selectedCategoryId === item?.categoryId) {
+                                await updateItemAsync(db, hours, minutes, itemId);
+                            } else {
+                                console.log("Selected cat id: " + selectedCategoryId);
+                                await updateItemWithCategoryAsync(db, hours, minutes, itemId, selectedCategoryId);
+                            }
+                        }
+                        router.back();
+                    }
+                }}
+            >
+                <Text style={styles.heading}>Save Item!</Text>
+            </TouchableOpacity>
         </View>
     )
 }
 const styles = StyleSheet.create({
     input: {
-        borderRadius: 4,
         borderWidth: 1,
-        flex: 1,
-        height: 48,
-        padding: 8,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        minWidth: 60,
+        textAlign: 'center',
+        fontSize: 16,
     },
     flexRow: {
+        marginBottom: 20,
         flexDirection: 'row',
+    },
+    inputGroup: {
+        flex: 1, // each group takes half of the row
+        alignItems: 'center',
     },
     container: {
         padding: 20,
@@ -124,4 +154,23 @@ const styles = StyleSheet.create({
         height: 60,
         backgroundColor: '#f0f0f0',
     },
+    heading: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        color: 'white'
+    },
+    addItem: {
+        marginTop: 20,
+        borderRadius: 4,
+        borderWidth: 1,
+        alignItems: 'center',
+        backgroundColor: '#006742',
+        padding: 10,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+    },
+    inputLabel: {
+        fontSize: 12
+    }
 });
