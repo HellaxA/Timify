@@ -1,4 +1,5 @@
 import { CategoryEntity } from '@/src/entities/category';
+import { ItemEntity } from '@/src/entities/item';
 import {
     type SQLiteDatabase,
 } from 'expo-sqlite';
@@ -15,7 +16,7 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     await db.execAsync(`
       PRAGMA journal_mode = 'wal';
       PRAGMA foreign_keys = ON;
-      CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY NOT NULL, hours INTEGER, minutes INTEGER, category_id INTEGER NOT NULL, FOREIGN KEY (category_id) REFERENCES categories(id));
+      CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY NOT NULL, hours INTEGER, minutes INTEGER, create_time TEXT, category_id INTEGER NOT NULL, FOREIGN KEY (category_id) REFERENCES categories(id));
       CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY NOT NULL, name TEXT);
     `);
 
@@ -28,6 +29,11 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     // }
     await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
 }
+export function getAllItemsSorted(db: SQLiteDatabase) {
+    return db.getAllSync<ItemEntity>(
+        'SELECT * FROM items ORDER BY create_time'
+    );
+}
 export async function deleteItemAsync(db: SQLiteDatabase, id: number | null): Promise<void> {
     try {
         await db.runAsync('DELETE FROM items where id = ?', id);
@@ -37,10 +43,10 @@ export async function deleteItemAsync(db: SQLiteDatabase, id: number | null): Pr
 }
 
 export async function addItemAsync(db: SQLiteDatabase, hours: number, minutes: number, categoryId: number): Promise<void> {
-    if (hours !== 0 && minutes !== 0) {
+    if (hours !== 0 || minutes !== 0) {
         try {
             await db.runAsync(
-                'INSERT INTO items (hours, minutes, category_id) VALUES (?, ?, ?);',
+                'INSERT INTO items (hours, minutes, create_time, category_id) VALUES (?, ?, datetime(\'now\'),?);',
                 hours,
                 minutes,
                 categoryId
@@ -52,23 +58,27 @@ export async function addItemAsync(db: SQLiteDatabase, hours: number, minutes: n
 }
 
 export async function updateItemAsync(db: SQLiteDatabase, hours: number, minutes: number, id: number): Promise<void> {
-    if (hours !== 0 && minutes !== 0) {
-        try {
-            await db.runAsync(
-                'UPDATE items SET hours = ?, minutes = ? WHERE id = ?;',
-                hours,
-                minutes,
-                id
-            );
-        } catch (error) {
-            console.error('Error updating the item:', error);
-        }
+    if (hours === 0 && minutes === 0) {
+        deleteItemAsync(db, id);
+    }
+    try {
+        await db.runAsync(
+            'UPDATE items SET hours = ?, minutes = ? WHERE id = ?;',
+            hours,
+            minutes,
+            id
+        );
+    } catch (error) {
+        console.error('Error updating the item:', error);
     }
 }
 export async function updateItemWithCategoryAsync(db: SQLiteDatabase, hours: number, minutes: number, id: number, categoryId: number): Promise<void> {
+    if (hours === 0 && minutes === 0) {
+        deleteItemAsync(db, id);
+    }
     try {
         await db.runAsync(
-            'UPDATE items SET description = ?, category_id = ? WHERE id = ?;',
+            'UPDATE items SET hours = ?, minutes = ?, category_id = ? WHERE id = ?;',
             hours,
             minutes,
             categoryId,

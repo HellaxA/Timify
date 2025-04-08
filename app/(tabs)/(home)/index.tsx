@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { ItemEntity } from '@/src/entities/item';
+import { getAllItemsSorted } from '@/db/db_setup';
 
 export default function HomeScreen() {
   return (
@@ -26,11 +27,9 @@ export function Main() {
 
   const refetchItems = useCallback(() => {
     setItems(
-      db.getAllSync<ItemEntity>(
-        'SELECT * FROM items'// TODO get the logic to db_setup.sql
-      )
+      getAllItemsSorted(db)
     );
-  }, []);
+  }, [db]);
   
   useFocusEffect(refetchItems);
 
