@@ -20,9 +20,20 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
       CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY NOT NULL, name TEXT);
     `);
 
-    // await db.execAsync(
-    //     `INSERT INTO categories (name) VALUES ('New Name')`
-    // )
+    // db.execSync( `INSERT INTO categories (id, name) VALUES (9919,'New Name')`
+    // );
+    // db.execSync(
+    //     `INSERT INTO items (hours, minutes, create_time, category_id) VALUES(1,1,'2025-04-08 10:10:10', 999)`
+    // );
+    // db.execSync(
+    //     `INSERT INTO items (hours, minutes, create_time, category_id) VALUES(1,1,'2030-04-08 20:10:10', 999)`
+    // );
+    // db.execSync(
+    //     `INSERT INTO items (hours, minutes, create_time, category_id) VALUES(1,1,'2025-04-08 20:10:10', 999)`
+    // );
+    // db.execSync(
+    //     `INSERT INTO items (hours, minutes, create_time, category_id) VALUES(1,1,'2021-04-08 20:10:10', 999)`
+    // );
     currentDbVersion = 1;
     // if (currentDbVersion === 1) {
     //   Add more migrations
@@ -31,7 +42,7 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
 }
 export function getAllItemsSorted(db: SQLiteDatabase) {
     return db.getAllSync<ItemEntity>(
-        'SELECT * FROM items ORDER BY create_time'
+        'SELECT * FROM items ORDER BY create_time DESC'
     );
 }
 export async function deleteItemAsync(db: SQLiteDatabase, id: number | null): Promise<void> {
