@@ -53,13 +53,14 @@ export async function deleteItemAsync(db: SQLiteDatabase, id: number | null): Pr
     }
 }
 
-export async function addItemAsync(db: SQLiteDatabase, hours: number, minutes: number, categoryId: number): Promise<void> {
+export async function addItemAsync(db: SQLiteDatabase, hours: number, minutes: number, date: string, categoryId: number): Promise<void> {
     if (hours !== 0 || minutes !== 0) {
         try {
             await db.runAsync(
-                'INSERT INTO items (hours, minutes, create_time, category_id) VALUES (?, ?, datetime(\'now\'),?);',
+                'INSERT INTO items (hours, minutes, create_time, category_id) VALUES (?, ?, ?, ?);',
                 hours,
                 minutes,
+                date,
                 categoryId
             );
         } catch (error) {
@@ -68,30 +69,32 @@ export async function addItemAsync(db: SQLiteDatabase, hours: number, minutes: n
     }
 }
 
-export async function updateItemAsync(db: SQLiteDatabase, hours: number, minutes: number, id: number): Promise<void> {
+export async function updateItemAsync(db: SQLiteDatabase, hours: number, minutes: number, date: string, id: number): Promise<void> {
     if (hours === 0 && minutes === 0) {
         deleteItemAsync(db, id);
     }
     try {
         await db.runAsync(
-            'UPDATE items SET hours = ?, minutes = ? WHERE id = ?;',
+            'UPDATE items SET hours = ?, minutes = ?, create_time = ? WHERE id = ?;',
             hours,
             minutes,
+            date,
             id
         );
     } catch (error) {
         console.error('Error updating the item:', error);
     }
 }
-export async function updateItemWithCategoryAsync(db: SQLiteDatabase, hours: number, minutes: number, id: number, categoryId: number): Promise<void> {
+export async function updateItemWithCategoryAsync(db: SQLiteDatabase, hours: number, minutes: number, date: string, id: number, categoryId: number): Promise<void> {
     if (hours === 0 && minutes === 0) {
         deleteItemAsync(db, id);
     }
     try {
         await db.runAsync(
-            'UPDATE items SET hours = ?, minutes = ?, category_id = ? WHERE id = ?;',
+            'UPDATE items SET hours = ?, minutes = ?, create_time = ?, category_id = ? WHERE id = ?;',
             hours,
             minutes,
+            date,
             categoryId,
             id
         );

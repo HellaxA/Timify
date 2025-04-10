@@ -1,4 +1,5 @@
 import { addItemAsync, fetchCategories, updateItemAsync, updateItemWithCategoryAsync } from '@/db/db_setup';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { ItemEntity } from '@/src/entities/item';
 import { router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -8,7 +9,9 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Text
+  Text,
+  Button,
+  Modal
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import { CategoryEntity } from '@/src/entities/category';
@@ -21,6 +24,7 @@ export default function AddOrEditItem({ itemId }: Props) {
     const db = useSQLiteContext();
     const [hours, setHours] = useState(0);
     const [minutes, setMinutes] = useState(0);
+    const [date, setDate] = useState(new Date());
 
     const [categories, setCategories] = useState<CategoryEntity[]>([]);
     const refetchCategories = useCallback(() => {
@@ -41,18 +45,18 @@ export default function AddOrEditItem({ itemId }: Props) {
                 }
                 setHours(fetchedItem?.hours || 0);
                 setMinutes(fetchedItem?.minutes || 0);
+                const splitDate = fetchedItem!.create_time.split("/");
+                setDate(new Date(+splitDate[2], +splitDate[0] - 1, +splitDate[1]));
             };
         }
         const fetchCategory = () => {
             if (itemId != null) {
                 const fetchedCategory = db.getFirstSync<CategoryEntity>('SELECT * FROM categories WHERE id = (SELECT category_id FROM items WHERE id = ?)', itemId); // TODO get the logic to db_setup.sql
                 if (fetchedCategory != null) {
-                    console.log('Fetched cat for this item: ' + fetchedCategory.id);
                     setSelectedCategoryId(fetchedCategory.id);
                 }
 
             } else {
-                console.log('Cats len: ' + categories.length);
                 if (categories.length !== 0) {
                     setSelectedCategoryId(categories[0].id);
                 }
@@ -64,6 +68,15 @@ export default function AddOrEditItem({ itemId }: Props) {
         fetchItem();//It is called twice on re-render because render -> useEffect() -> fetchItem() -> useFocusEffect() -> setCategories() -> re-render -> fetchItem()
 
     }, [itemId, categories, db]);
+
+    const [show, setShow] = useState(false);
+  
+    const onChange = (event: DateTimePickerEvent, date?: Date | undefined) => {
+        if (date) {
+            setDate(date);
+        }
+        setShow(false);
+    }
 
     return (
         <View style={styles.container}>
@@ -102,6 +115,26 @@ export default function AddOrEditItem({ itemId }: Props) {
 
                 </Picker>
             </View>
+            <View>
+                <TouchableOpacity 
+                    style={styles.date}
+                    onPress={() => setShow(true)}>
+
+                    <Text style={styles.dateHeading}>{date.toLocaleDateString()}</Text>
+                </TouchableOpacity>
+
+                <View>
+                    {show && (
+                        <DateTimePicker
+                            value={date}
+                            mode='date'
+                            is24Hour={true}
+                            display='spinner'
+                            onChange={onChange}
+                        />
+      )}
+                </View>
+            </View>
             <TouchableOpacity 
                 style={styles.addItem}
                 onPress={async () => {
@@ -109,13 +142,13 @@ export default function AddOrEditItem({ itemId }: Props) {
                         console.log('selectedCategoryId is null');
                     } else {
                         if (itemId == null) {
-                            await addItemAsync(db, hours, minutes, selectedCategoryId);
+                            await addItemAsync(db, hours, minutes, date.toLocaleDateString(), selectedCategoryId);
                         } else {
                             if (selectedCategoryId === item?.categoryId) {
-                                await updateItemAsync(db, hours, minutes, itemId);
+                                await updateItemAsync(db, hours, minutes, date.toLocaleDateString(), itemId);
                             } else {
-                                console.log("Selected cat id: " + selectedCategoryId);
-                                await updateItemWithCategoryAsync(db, hours, minutes, itemId, selectedCategoryId);
+                                // console.log("Selected cat id: " + selectedCategoryId);
+                                await updateItemWithCategoryAsync(db, hours, minutes, date.toLocaleDateString(), itemId, selectedCategoryId);
                             }
                         }
                         router.back();
@@ -153,6 +186,7 @@ const styles = StyleSheet.create({
     picker: {
         height: 60,
         backgroundColor: '#f0f0f0',
+        fontSize: 16,
     },
     heading: {
         fontSize: 20,
@@ -172,5 +206,18 @@ const styles = StyleSheet.create({
     },
     inputLabel: {
         fontSize: 12
-    }
+    },
+    date: {
+        marginTop: 20,
+        borderRadius: 4,
+        borderWidth: 1,
+        alignItems: 'center',
+        padding: 10,
+        borderColor: '#ccc',
+        
+    },
+    dateHeading: {
+        fontSize: 16,
+        textAlign: 'center',
+    },
 });

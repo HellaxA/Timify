@@ -77,7 +77,7 @@ function Item({item, onPressItem}:
     >
 
       <Text style={styles.itemText}>
-        {hours}h {minutes}m --- create_time: {create_time}
+        {hours}h {minutes}m --- {create_time}
       </Text>
       
     </TouchableOpacity>
