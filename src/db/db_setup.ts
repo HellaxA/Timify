@@ -47,7 +47,8 @@ export function getAllItemsSorted(db: SQLiteDatabase, curDate: Date) {
     return db.getAllSync<ItemEntityWithCatName>(
         'SELECT i.id, i.hours, i.minutes, i.create_time, c.name as categoryName ' +
         'FROM items i INNER JOIN categories c ON i.category_id = c.id ' +
-        'WHERE i.create_time LIKE ?',
+        'WHERE i.create_time LIKE ? ' + 
+        'ORDER BY i.create_time DESC',
         pattern
     );
 }

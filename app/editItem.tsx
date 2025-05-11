@@ -30,7 +30,7 @@ export default function EditItem() {
                     )
                 }} 
             />
-            <AddOrEditItem itemId={itemId} />
+            <AddOrEditItem itemId={itemId} curDateParam={null} />
         </View>
     )
 

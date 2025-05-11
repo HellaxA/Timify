@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { getAllItemsSorted } from '@/src/db/db_setup';
 import { ItemEntityWithCatName } from '@/src/entities/itemWithCatName';
-import { get4DigitYear, getLongMonth } from '@/src/utils/utilities';
+import { formatDate, get4DigitYear, getLongMonth } from '@/src/utils/utilities';
 
 export default function HomeScreen() {
   return (
@@ -25,8 +25,7 @@ export default function HomeScreen() {
 export function Main() {
   const db = useSQLiteContext();
 
-  const curDate: Date = new Date();
-
+  const [curDate, setCurDate] = useState<Date>(new Date());
   const [dayItems, setItems] = useState<Map<string, ItemEntityWithCatName[]>>(new Map())
   const refetchItems = useCallback(() => {
     const items = getAllItemsSorted(db, curDate)
@@ -49,26 +48,53 @@ export function Main() {
     router.push(`/editItem?itemId=${id}`);
   }
 
+  function nextMonth() {
+    if (curDate.getMonth() === 11) {
+      curDate.setFullYear(curDate.getFullYear() + 1)
+      curDate.setMonth(0)
+    } else {
+      curDate.setMonth(curDate.getMonth() + 1)
+    }
+    setCurDate(curDate)
+    refetchItems()
+  }
+
+  function prevMonth() {
+    if (curDate.getMonth() === 0) {
+      curDate.setFullYear(curDate.getFullYear() - 1)
+      curDate.setMonth(11)
+    } else {
+      curDate.setMonth(curDate.getMonth() - 1)
+    }
+    setCurDate(curDate)
+    refetchItems()
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.navRow}>
-        <TouchableOpacity style={styles.navButton}>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => prevMonth()}
+        >
           <Text style={styles.navHeading}>Prev</Text>
         </TouchableOpacity>
         <View style={styles.navButton}>
           <Text style={styles.navHeading}>{getLongMonth(curDate)} {get4DigitYear(curDate)}</Text>
         </View>
-        <TouchableOpacity style={styles.navButton}>
+        <TouchableOpacity 
+          style={styles.navButton}
+          onPress={() => nextMonth()}
+        >
           <Text style={styles.navHeading}>Next</Text>
         </TouchableOpacity>
       </View>
       <ScrollView style={styles.listArea}>
         <View style={styles.sectionContainer}>
           {Array.from(dayItems.entries())
-            .sort(([a], [b]) => a.localeCompare(b))
             .map(([date, items]) => (
               <View key={date} style={{marginBottom: 10}}>
-                <Text>{date}</Text>
+                <Text>{date.split("/")[0]}th</Text>
                 {items.map((item) => (
                   <Item
                     key={item.id}
@@ -85,7 +111,7 @@ export function Main() {
       </ScrollView>
       <TouchableOpacity
         style={styles.addItem}
-        onPress={() => router.push("/addItem")}
+        onPress={() => router.push(`/addItem?curDate=${formatDate(curDate)}`)}
       >
         <Text style={styles.heading}>Add Item</Text>
 

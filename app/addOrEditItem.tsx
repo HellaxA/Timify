@@ -17,13 +17,25 @@ import { formatDate, getLongMonth } from '@/src/utils/utilities';
 
 interface Props {
     itemId: number | null;
+    curDateParam: string | null;
 }
 
-export default function AddOrEditItem({ itemId }: Props) {
+export default function AddOrEditItem({ itemId, curDateParam }: Props) {
     const db = useSQLiteContext();
     const [hours, setHours] = useState(0);
     const [minutes, setMinutes] = useState(0);
-    const [date, setDate] = useState(new Date());
+
+    let curDate;
+    if (curDateParam !== null) {
+        let curDateParamSplit = curDateParam?.split('/')
+        curDate = new Date(+curDateParamSplit![2], 
+            +curDateParamSplit![1] - 1,
+            +curDateParamSplit![0]);
+    } else {
+        curDate = new Date();
+    }
+
+    const [date, setDate] = useState(curDate);
 
     const [categories, setCategories] = useState<CategoryEntity[]>([]);
     const refetchCategories = useCallback(() => {
