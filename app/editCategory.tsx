@@ -3,7 +3,7 @@ import { TouchableOpacity, View,StyleSheet } from "react-native";
 import { router } from 'expo-router';
 import { useLocalSearchParams, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { deleteCategoryAsync } from "@/db/db_setup";
+import { deleteCategoryAsync } from "@/src/db/db_setup";
 import { useSQLiteContext } from "expo-sqlite";
 import AddOrEditCategory from "./addOrEditCategory";
 

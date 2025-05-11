@@ -1,4 +1,4 @@
-import { migrateDbIfNeeded } from "@/db/db_setup";
+import { migrateDbIfNeeded } from "@/src/db/db_setup";
 import { Stack } from "expo-router";
 import { SQLiteProvider } from 'expo-sqlite';
 

@@ -1,4 +1,4 @@
-import { fetchCategories } from '@/db/db_setup';
+import { fetchCategories } from '@/src/db/db_setup';
 import { CategoryEntity } from '@/src/entities/category';
 import { router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';

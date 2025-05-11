@@ -7,7 +7,7 @@ import {
   TextInput,
 } from 'react-native';
 import { CategoryEntity } from '@/src/entities/category';
-import { addCategoryAsync, updateCategoryAsync } from '@/db/db_setup';
+import { addCategoryAsync, updateCategoryAsync } from '@/src/db/db_setup';
 
 interface Props {
     categoryId: number | null;

@@ -11,8 +11,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { ItemEntity } from '@/src/entities/item';
-import { getAllItemsSorted } from '@/db/db_setup';
+import { getAllItemsSorted } from '@/src/db/db_setup';
+import { ItemEntityWithCatName } from '@/src/entities/itemWithCatName';
+import { get4DigitYear, getLongMonth } from '@/src/utils/utilities';
 
 export default function HomeScreen() {
   return (
@@ -23,11 +24,22 @@ export default function HomeScreen() {
 }
 export function Main() {
   const db = useSQLiteContext();
-  const [items, setItems] = useState<ItemEntity[]>([]);
 
+  const curDate: Date = new Date();
+
+  const [dayItems, setItems] = useState<Map<string, ItemEntityWithCatName[]>>(new Map())
   const refetchItems = useCallback(() => {
+    const items = getAllItemsSorted(db, curDate)
+    const dayItems = items.reduce((map: Map<string, ItemEntityWithCatName[]>, item: ItemEntityWithCatName) => {
+      const key = item.create_time;
+      if (!map.has(key)) {
+        map.set(key, []);
+      }
+      map.get(key)!.push(item);
+      return map;
+    }, new Map<string, ItemEntityWithCatName[]>());
     setItems(
-      getAllItemsSorted(db)
+      dayItems
     );
   }, [db]);
   
@@ -39,18 +51,36 @@ export function Main() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.navRow}>
+        <TouchableOpacity style={styles.navButton}>
+          <Text style={styles.navHeading}>Prev</Text>
+        </TouchableOpacity>
+        <View style={styles.navButton}>
+          <Text style={styles.navHeading}>{getLongMonth(curDate)} {get4DigitYear(curDate)}</Text>
+        </View>
+        <TouchableOpacity style={styles.navButton}>
+          <Text style={styles.navHeading}>Next</Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView style={styles.listArea}>
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionHeading}>Logged Activities</Text>
-          {items.map((item) => (
-            <Item
-              key={item.id}
-              item={item}
-              onPressItem={ (id) => {
-                editItem(id);
-              }}
-            />
-          ))}
+          {Array.from(dayItems.entries())
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([date, items]) => (
+              <View key={date} style={{marginBottom: 10}}>
+                <Text>{date}</Text>
+                {items.map((item) => (
+                  <Item
+                    key={item.id}
+                    item={item}
+                    onPressItem={(id) => {
+                      editItem(id);
+                    }}
+                  />
+                ))}
+              </View>
+            ))
+          }
         </View>
       </ScrollView>
       <TouchableOpacity
@@ -66,10 +96,14 @@ export function Main() {
 
 function Item({item, onPressItem}:
   {
-    item: ItemEntity;
+    item: ItemEntityWithCatName;
     onPressItem: (id: number) => void | Promise<void>;
   }) {
-  const { id, hours, minutes, create_time } = item;
+  const { id, hours, minutes, create_time, categoryName } = item;
+  // console.log("ID: " + id)
+  // console.log("hours: " + hours)
+  // console.log("create: " + create_time)
+  // console.log("cat: " + categoryName)
   return (
     <TouchableOpacity
       onPress={() => onPressItem?.(id) }
@@ -77,7 +111,7 @@ function Item({item, onPressItem}:
     >
 
       <Text style={styles.itemText}>
-        {hours}h {minutes}m --- {create_time}
+        {hours}h {minutes > 0 && minutes + "m"} --- {categoryName}
       </Text>
       
     </TouchableOpacity>
@@ -132,7 +166,7 @@ const styles = StyleSheet.create({
   item: {
     backgroundColor: '#fff',
     borderColor: '#000',
-    borderWidth: 1,
+    borderBottomWidth: 1,
     padding: 8,
   },
   itemDone: {
@@ -144,4 +178,21 @@ const styles = StyleSheet.create({
   itemTextDone: {
     color: '#fff',
   },
+  navRow: {
+    marginBottom: 10,
+    marginTop: 10,
+    marginLeft: 5,
+    marginRight: 5,
+    flexDirection: 'row',
+  },
+  navButton: {
+    flex: 1, // each group takes half of the row
+    borderRadius: 4,
+    borderLeftWidth: 1,
+    alignItems: 'center',
+  },
+  navHeading: {
+    fontSize: 18,
+    marginBottom: 8,
+  }
 });

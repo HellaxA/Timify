@@ -1,8 +1,10 @@
 import { CategoryEntity } from '@/src/entities/category';
 import { ItemEntity } from '@/src/entities/item';
+import { ItemEntityWithCatName } from '@/src/entities/itemWithCatName';
 import {
     type SQLiteDatabase,
 } from 'expo-sqlite';
+import { get2DigitMonth, get4DigitYear } from '../utils/utilities';
 
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     const DATABASE_VERSION = 1;
@@ -40,9 +42,13 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     // }
     await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
 }
-export function getAllItemsSorted(db: SQLiteDatabase) {
-    return db.getAllSync<ItemEntity>(
-        'SELECT * FROM items ORDER BY create_time DESC'
+export function getAllItemsSorted(db: SQLiteDatabase, curDate: Date) {
+    const pattern =  '%/'+ get2DigitMonth(curDate) + '/' + get4DigitYear(curDate)
+    return db.getAllSync<ItemEntityWithCatName>(
+        'SELECT i.id, i.hours, i.minutes, i.create_time, c.name as categoryName ' +
+        'FROM items i INNER JOIN categories c ON i.category_id = c.id ' +
+        'WHERE i.create_time LIKE ?',
+        pattern
     );
 }
 export async function deleteItemAsync(db: SQLiteDatabase, id: number | null): Promise<void> {
@@ -54,13 +60,14 @@ export async function deleteItemAsync(db: SQLiteDatabase, id: number | null): Pr
 }
 
 export async function addItemAsync(db: SQLiteDatabase, hours: number, minutes: number, date: string, categoryId: number): Promise<void> {
+    console.log(date);
     if (hours !== 0 || minutes !== 0) {
         try {
             await db.runAsync(
                 'INSERT INTO items (hours, minutes, create_time, category_id) VALUES (?, ?, ?, ?);',
                 hours,
                 minutes,
-                date,
+                date, // dd/MM/yyyy
                 categoryId
             );
         } catch (error) {

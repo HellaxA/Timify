@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { useLocalSearchParams, Stack } from "expo-router";
 import AddOrEditItem from "./addOrEditItem";
 import { Ionicons } from "@expo/vector-icons";
-import { deleteItemAsync } from "@/db/db_setup";
+import { deleteItemAsync } from "@/src/db/db_setup";
 import { useSQLiteContext } from "expo-sqlite";
 
 export default function EditItem() {

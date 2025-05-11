@@ -1,4 +1,4 @@
-import { addItemAsync, fetchCategories, updateItemAsync, updateItemWithCategoryAsync } from '@/db/db_setup';
+import { addItemAsync, fetchCategories, updateItemAsync, updateItemWithCategoryAsync } from '@/src/db/db_setup';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { ItemEntity } from '@/src/entities/item';
 import { router, useFocusEffect } from 'expo-router';
@@ -10,11 +10,10 @@ import {
   TouchableOpacity,
   View,
   Text,
-  Button,
-  Modal
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import { CategoryEntity } from '@/src/entities/category';
+import { formatDate, getLongMonth } from '@/src/utils/utilities';
 
 interface Props {
     itemId: number | null;
@@ -37,7 +36,6 @@ export default function AddOrEditItem({ itemId }: Props) {
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>();
     useEffect(() => {
         const fetchItem = () => {
-            console.log('fetching item');
             if (itemId != null) {
                 const fetchedItem = db.getFirstSync<ItemEntity>('SELECT * FROM items WHERE id = ?', itemId); // TODO get the logic to db_setup.sql
                 if (fetchedItem != null) {
@@ -46,7 +44,7 @@ export default function AddOrEditItem({ itemId }: Props) {
                 setHours(fetchedItem?.hours || 0);
                 setMinutes(fetchedItem?.minutes || 0);
                 const splitDate = fetchedItem!.create_time.split("/");
-                setDate(new Date(+splitDate[2], +splitDate[0] - 1, +splitDate[1]));
+                setDate(new Date(+splitDate[2], +splitDate[1] - 1, +splitDate[0]));
             };
         }
         const fetchCategory = () => {
@@ -120,7 +118,7 @@ export default function AddOrEditItem({ itemId }: Props) {
                     style={styles.date}
                     onPress={() => setShow(true)}>
 
-                    <Text style={styles.dateHeading}>{date.toLocaleDateString()}</Text>
+                    <Text style={styles.dateHeading}>{formatDate(date)}</Text>
                 </TouchableOpacity>
 
                 <View>
@@ -142,13 +140,13 @@ export default function AddOrEditItem({ itemId }: Props) {
                         console.log('selectedCategoryId is null');
                     } else {
                         if (itemId == null) {
-                            await addItemAsync(db, hours, minutes, date.toLocaleDateString(), selectedCategoryId);
+                            await addItemAsync(db, hours, minutes, formatDate(date), selectedCategoryId);
                         } else {
                             if (selectedCategoryId === item?.categoryId) {
-                                await updateItemAsync(db, hours, minutes, date.toLocaleDateString(), itemId);
+                                await updateItemAsync(db, hours, minutes, formatDate(date), itemId);
                             } else {
                                 // console.log("Selected cat id: " + selectedCategoryId);
-                                await updateItemWithCategoryAsync(db, hours, minutes, date.toLocaleDateString(), itemId, selectedCategoryId);
+                                await updateItemWithCategoryAsync(db, hours, minutes, formatDate(date), itemId, selectedCategoryId);
                             }
                         }
                         router.back();
