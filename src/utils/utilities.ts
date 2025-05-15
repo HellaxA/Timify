@@ -16,3 +16,9 @@ export function get2DigitMonth(date: Date) {
 export function get4DigitYear(date: Date) {
     return date.toLocaleString('default', { year: 'numeric' });
 }
+
+export function getHoursMinutesString(value: number) {
+    let res = (Math.floor(value / 60)) + 'h '
+    let remainMinutes = value % 60
+    return remainMinutes > 0 ? res + remainMinutes + 'm ' : res
+}

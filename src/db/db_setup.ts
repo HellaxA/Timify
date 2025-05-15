@@ -61,7 +61,6 @@ export async function deleteItemAsync(db: SQLiteDatabase, id: number | null): Pr
 }
 
 export async function addItemAsync(db: SQLiteDatabase, hours: number, minutes: number, date: string, categoryId: number): Promise<void> {
-    console.log(date);
     if (hours !== 0 || minutes !== 0) {
         try {
             await db.runAsync(

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import { CategoryEntity } from '@/src/entities/category';
-import { formatDate, getLongMonth } from '@/src/utils/utilities';
+import { formatDate } from '@/src/utils/utilities';
 
 interface Props {
     itemId: number | null;
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         borderWidth: 1,
         alignItems: 'center',
-        backgroundColor: '#006742',
+        backgroundColor: '#232B5D',
         padding: 10,
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
