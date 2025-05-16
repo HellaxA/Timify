@@ -1,10 +1,10 @@
 import { CategoryEntity } from '@/src/entities/category';
-import { ItemEntity } from '@/src/entities/item';
 import { ItemEntityWithCatName } from '@/src/entities/itemWithCatName';
 import {
     type SQLiteDatabase,
 } from 'expo-sqlite';
 import { get2DigitMonth, get4DigitYear } from '../utils/utilities';
+import { ItemEntity } from '../entities/item';
 
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     const DATABASE_VERSION = 1;
@@ -14,7 +14,6 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     }
     let currentDbVersion = result.user_version;
 
-    console.log('Current db version: ', currentDbVersion);
     await db.execAsync(`
       PRAGMA journal_mode = 'wal';
       PRAGMA foreign_keys = ON;
@@ -42,6 +41,13 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     // }
     await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
 }
+
+export function getAllItems(db: SQLiteDatabase) {
+    return db.getAllSync<ItemEntity>(
+        'SELECT * FROM items'
+    );
+}
+
 export function getAllItemsSorted(db: SQLiteDatabase, curDate: Date) {
     const pattern =  '%/'+ get2DigitMonth(curDate) + '/' + get4DigitYear(curDate)
     return db.getAllSync<ItemEntityWithCatName>(
@@ -147,4 +153,43 @@ export async function updateCategoryAsync(db: SQLiteDatabase, text: string, id: 
             console.error('Error updating the category:', error);
         }
     }
+}
+
+export function saveItems(items: string[], db: SQLiteDatabase) {
+    db.withTransactionSync(() => {
+        for (let i = 0; i < items.length; i++) {
+            if (!items[i]) continue
+            let fields = items[i].split(',')
+            db.runSync(
+                'INSERT INTO items(id, hours, minutes, create_time, category_id) VALUES (?, ?, ?, ?, ?);',
+                fields[0],
+                fields[1],
+                fields[2],
+                fields[3],
+                fields[4],
+            );
+        }
+    })
+}
+export function saveCategories(categories: string[], db: SQLiteDatabase) {
+    for (let i = 0; i < categories.length; i++) {
+        console.log(categories[i])
+    }
+    db.withTransactionSync(() => {
+        for (let i = 0; i < categories.length; i++) {
+            if (!categories[i]) continue
+            let fields = categories[i].split(',')
+            db.runSync(
+                'INSERT INTO categories(id, name) VALUES (?, ?)',
+                fields[0],
+                fields[1]
+            );
+        }
+    })
+}
+export function deleteCats(db: SQLiteDatabase) {
+    db.runSync('DELETE FROM categories')
+}
+export function deleteItems(db: SQLiteDatabase) {
+    db.runSync('DELETE FROM items')
 }
