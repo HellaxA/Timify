@@ -4,7 +4,7 @@ A simple and intuitive time tracking app that helps you log, review, and analyze
 ---
 
 ## 🎬 Preview
-![](https://github.com/HellaxA/Timify/blob/master/animation.gif.mp4)
+![](https://github.com/HellaxA/Timify/blob/master/preview.gif)
 
 ## 📌 Purpose
 This app is built to help you better understand and manage your time. It provides the following features:
