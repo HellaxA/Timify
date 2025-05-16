@@ -27,8 +27,20 @@ This app is built to help you better understand and manage your time. It provide
   - Export your logs to a `.csv` file  
   - Import from `.csv` for backup or migration  
 
----
 
+## 📦 How to Build the APK
+This app uses **Expo Application Services (EAS)** for building APK files.
+
+### 🛠 Prerequisites
+
+Make sure you have:
+
+- Node.js installed
+- Expo CLI installed globally:
+  ```bash
+  npm install -g expo-cli
+  npx expo login
+  eas build --platform android --profile preview
 ## 📚 What I Learned
 1. SQLiteProvider has to be at the top layout level to provide access to all the Screens.
  Otherwise during navigation.back() between pages with individual SQLiteProvider the DB would be closed. 
