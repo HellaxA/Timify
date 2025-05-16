@@ -1,9 +1,10 @@
 # ⏱️ Time Tracker App
 
 A simple and intuitive time tracking app that helps you log, review, and analyze how you spend your time.
-
 ---
+
 ## 🎬 Preview
+![](https://github.com/HellaxA/Timify/blob/master/animation.gif.mp4)
 
 ## 📌 Purpose
 This app is built to help you better understand and manage your time. It provides the following features:
