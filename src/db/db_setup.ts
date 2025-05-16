@@ -21,10 +21,10 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
       CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY NOT NULL, name TEXT);
     `);
 
-    // db.execSync( `INSERT INTO categories (id, name) VALUES (9919,'New Name')`
+    db.execSync(`INSERT INTO categories (id, name) VALUES (999,'Work')`);
     // );
     // db.execSync(
-    //     `INSERT INTO items (hours, minutes, create_time, category_id) VALUES(1,1,'2025-04-08 10:10:10', 999)`
+    //     `INSERT INTO items (hours, minutes, create_time, category_id) VALUES(999,1,'2025-04-08 10:10:10', 999)`
     // );
     // db.execSync(
     //     `INSERT INTO items (hours, minutes, create_time, category_id) VALUES(1,1,'2030-04-08 20:10:10', 999)`
