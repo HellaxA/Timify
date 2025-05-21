@@ -5,7 +5,7 @@ A simple and intuitive time tracking app that helps you log, review, and analyze
 
 ## 🎬 Preview
 ![]()
-<img src="preview.gif" width="20%" height="20%"/>
+<img src="preview.gif" width="40%" height="40%"/>
 
 ## 📌 Purpose
 This app is built to help you better understand and manage your time. It provides the following features:
